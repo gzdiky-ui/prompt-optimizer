@@ -78,10 +78,13 @@ function validateSource(cwd, requested, expectedSha) {
 
 function main(env = process.env, cwd = process.cwd()) {
   const result = validateSource(cwd, env.RELEASE_VERSION || env.GITHUB_REF_NAME, env.RELEASE_SHA);
+  // Fork publication gate: when the reusable call cannot push images, report
+  // the channel as a prerelease so the stable-tag promotion stays inactive.
+  const isPrerelease = env.DOCKER_PUBLISH_DISABLED === 'true' ? true : result.isPrerelease;
   const output = {
     version: result.tag, version_no_prefix: result.version,
-    is_prerelease: String(result.isPrerelease),
-    version_type: result.isPrerelease ? 'prerelease' : 'release',
+    is_prerelease: String(isPrerelease),
+    version_type: isPrerelease ? 'prerelease' : 'release',
     source_sha: result.sha, extension_version: result.extensionVersion,
   };
   const text = Object.entries(output).map(([key, value]) => `${key}=${value}`).join('\n') + '\n';

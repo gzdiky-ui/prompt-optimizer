@@ -529,15 +529,18 @@ jobs:
 
   publish-docker:
     needs: [prepare-release, build-windows, build-macos, build-linux, build-extension]
-    runs-on: ubuntu-latest
     permissions:
-      contents: read
-    steps:
-      - name: Docker image publication disabled in this fork
-        run: |
-          echo "Docker Hub / Aliyun registry credentials are not configured for this fork."
-          echo "Skipping Docker image publication. Desktop and extension assets are unaffected."
-
+      # GitHub only exposes draft releases to callers with repository write access.
+      contents: write
+    uses: ./.github/workflows/docker.yml
+    with:
+      version: ${{ needs.prepare-release.outputs.version }}
+      source_sha: ${{ needs.prepare-release.outputs.source_sha }}
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      ALIYUN_USERNAME: ${{ secrets.ALIYUN_USERNAME }}
+      ALIYUN_PASSWORD: ${{ secrets.ALIYUN_PASSWORD }}
 
   publish-release:
     needs: [prepare-release, publish-docker]
