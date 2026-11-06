@@ -2,6 +2,26 @@
 
 Full release narratives now live in versioned files under `releases/`. This file stays as the index and summary entry point.
 
+## [2.15.1] - 2026-11-03
+- EN: Fix collapsed selectors in Function Models, improve shared HTML/SVG previews and error reporting, and add Prompt Garden evaluation prompts to Arena. See [Release Notes (EN)](releases/v2.15.1.en.md).
+- 中文：修复功能模型选择框被挤成竖排的问题，完善共用 HTML/SVG 预览及错误显示，并接入 Prompt Garden 竞技场测评题。参见 [版本说明（中文）](releases/v2.15.1.zh-CN.md)。
+
+## [2.15.0] - 2026-11-03
+- EN: Add Arena, a shared-input workspace for comparing multiple text and image models side by side. Support independent test columns, desktop and mobile comparison layouts, and session/backup integration while reusing existing output controls. See [Release Notes (EN)](releases/v2.15.0.en.md).
+- 中文：新增竞技场，使用同一份输入并排比较多个文本及图像模型；支持独立测试栏、桌面与移动端对比布局，并接入现有会话与备份机制，沿用已有结果操作。参见 [版本说明（中文）](releases/v2.15.0.zh-CN.md)。
+
+## [2.15.0-beta.1] - 2026-11-03
+- EN: Preview Arena, a shared-input workspace for comparing multiple text and image models side by side. Add independent test columns, desktop and mobile comparison layouts, and session/backup integration while reusing existing output controls. See [Release Notes (EN)](releases/v2.15.0-beta.1.en.md).
+- 中文：本预览版新增竞技场，使用同一份输入并排比较多个文本及图像模型；支持独立测试栏、桌面与移动端对比布局，并接入现有会话与备份机制，沿用已有结果操作。参见 [版本说明（中文）](releases/v2.15.0-beta.1.zh-CN.md)。
+
+## [2.14.0] - 2026-11-02
+- EN: Add local-service discovery and guided model setup, unified workspace controls and prompt-source previews, and reorganized data management and cloud backups. Fix explicit configuration clears and delayed hover previews. See [Release Notes (EN)](releases/v2.14.0.en.md).
+- 中文：新增本机服务发现与模型连接引导，统一工作区控件和提示词来源预览，整理数据管理及云备份流程，并修复配置清空与延迟悬浮预览问题。参见 [版本说明（中文）](releases/v2.14.0.zh-CN.md)。
+
+## [2.14.0-beta.1] - 2026-11-02
+- EN: Preview local-service discovery and guided model setup, unified workspace controls and prompt-source previews, and reorganized data management and cloud backups. Fix explicit configuration clears and delayed hover previews. See [Release Notes (EN)](releases/v2.14.0-beta.1.en.md).
+- 中文：本预览版新增本机服务发现与模型连接引导，统一工作区控件和提示词来源预览，整理数据管理及云备份流程，并修复配置清空与延迟悬浮预览问题。参见 [版本说明（中文）](releases/v2.14.0-beta.1.zh-CN.md)。
+
 ## [2.13.0] - 2026-10-28
 - EN: Render interactive HTML inside Markdown results across Web, Desktop and the browser extension, with bounded concurrent output rendering. Improve backup integrity and cloud-backup import codes, preserve model selections and saved parameters, and refine image-editing templates. See [Release Notes (EN)](releases/v2.13.0.en.md).
 - 中文：Web、桌面和浏览器扩展统一支持 Markdown 内的交互式 HTML 预览，并限制并发输出的渲染开销；增强备份完整性和云备份导入码，保留模型选择与已保存参数，完善图片编辑模板。参见 [版本说明（中文）](releases/v2.13.0.zh-CN.md)。

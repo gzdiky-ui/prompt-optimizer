@@ -47,6 +47,7 @@ const {
 const { createGlobalDispatcherFromProxyDecision } = require('./config/proxy-dispatcher');
 const { NetworkSettingsStore } = require('./config/network-settings');
 const { ModelNetworkDispatcher } = require('./config/model-network');
+const { discoverDesktopLocalServices, fetchDesktopLocalServiceModels } = require('./config/local-discovery');
 const {
   buildAppMenuTemplate,
   getPageZoomShortcutAction,
@@ -93,6 +94,7 @@ const {
   createDataManager,
   createContextRepo,
   FavoriteManager,
+  safeSerializeForIPC,
   FileStorageProvider,
   runStorageStartupSafetyCheck,
   writeStartupRepairReport,
@@ -112,23 +114,7 @@ const convertImageInputWithElectronNativeImage = createElectronImageInputConvert
  * - IPC问题：Vue响应式对象无法被Electron序列化传递
  * - 存储问题：FileStorageProvider的数据一致性和恢复机制
  */
-function safeSerialize(obj) {
-  if (obj === null || obj === undefined) {
-    return obj;
-  }
-
-  // 对于基本类型，直接返回
-  if (typeof obj !== 'object') {
-    return obj;
-  }
-
-  try {
-    return JSON.parse(JSON.stringify(obj));
-  } catch (error) {
-    console.error('[IPC Serialization] Failed to serialize object:', error);
-    throw new Error(`Failed to serialize object for IPC: ${error.message}`);
-  }
-}
+const safeSerialize = safeSerializeForIPC;
 
 let mainWindow;
 let networkSettingsStore;
@@ -980,6 +966,22 @@ function setupIPC() {
     }
   }));
 
+  ipcMain.handle('local-services-discover', async (_event, ports) => {
+    try {
+      return createSuccessResponse(await discoverDesktopLocalServices(ports));
+    } catch (error) {
+      return createErrorResponse(error);
+    }
+  });
+
+  ipcMain.handle('local-services-fetch-models', async (_event, input) => {
+    try {
+      return createSuccessResponse(await fetchDesktopLocalServiceModels(input));
+    } catch (error) {
+      return createErrorResponse(error);
+    }
+  });
+
   ipcMain.handle('llm-fetchModelList', withModelNetwork(async (event, provider, customConfig) => {
     try {
       const result = await llmService.fetchModelList(provider, customConfig);
@@ -999,7 +1001,7 @@ function setupIPC() {
   }));
 
   // Streaming handler - more complex due to callbacks
-  ipcMain.handle('llm-sendMessageStream', withModelNetwork(async (event, messages, provider, streamId) => {
+  ipcMain.handle('llm-sendMessageStream', withModelNetwork(async (event, messages, provider, streamId, selection) => {
     const lease = streamRegistry.begin(event.sender, streamId);
     try {
       // 使用符合 StreamHandlers 接口的回调名称
@@ -1027,7 +1029,7 @@ function setupIPC() {
         }
       };
 
-      await llmService.sendMessageStream(messages, provider, callbacks);
+      await llmService.sendMessageStream(messages, provider, callbacks, selection);
       return createSuccessResponse(null);
     } catch (error) {
       return createErrorResponse(error);

@@ -65,12 +65,70 @@ beforeEach(() => {
 })
 afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals() })
 
+describe('image output format', () => {
+  it('defaults to PNG and keeps GIF settings optional in the advanced section', async () => {
+    state.current.currentParameterDefinitions.value = [
+      { name: 'quality', type: 'string' },
+      { name: 'output_format', type: 'string', allowedValues: ['png', 'gif'] },
+      { name: 'frame_count', type: 'integer', defaultValue: 9 },
+      { name: 'frame_duration_ms', type: 'integer', defaultValue: 200 },
+    ]
+    state.current.updateParamOverrides.mockImplementation((value: Record<string, unknown>) => {
+      state.current.configForm.value.paramOverrides = value
+    })
+    const wrapper = await createWrapper()
+    const select = wrapper.getComponent('[data-testid="image-output-format-select"]')
+    const advanced = wrapper.getComponent({ name: 'ModelAdvancedSection' })
+    expect(select.props('value')).toBe('png')
+    expect(advanced.props('parameterDefinitions').map((def: any) => def.name)).toEqual(['quality'])
+    expect(advanced.props('paramOverrides')).toEqual({ quality: 'high' })
+
+    select.vm.$emit('update:value', 'gif')
+    await flushPromises()
+    expect(state.current.configForm.value.paramOverrides).toEqual({ quality: 'high', output_format: 'gif' })
+    expect(advanced.props('parameterDefinitions').map((def: any) => def.name)).toEqual(['quality', 'frame_count', 'frame_duration_ms'])
+    expect(advanced.props('paramOverrides')).toEqual({ quality: 'high' })
+
+    advanced.vm.$emit('update:paramOverrides', { quality: 'high', frame_count: 8, frame_duration_ms: 100 })
+    await flushPromises()
+    expect(state.current.configForm.value.paramOverrides).toEqual({ quality: 'high', output_format: 'gif', frame_count: 8, frame_duration_ms: 100 })
+
+    select.vm.$emit('update:value', 'png')
+    await flushPromises()
+    expect(advanced.props('paramOverrides')).toEqual({ quality: 'high' })
+    advanced.vm.$emit('update:paramOverrides', { quality: 'low' })
+    await flushPromises()
+    select.vm.$emit('update:value', 'gif')
+    await flushPromises()
+    expect(advanced.props('paramOverrides')).toEqual({ quality: 'low', frame_count: 8, frame_duration_ms: 100 })
+    wrapper.unmount()
+  })
+
+  it('keeps the format selector hidden for models without format choices', async () => {
+    const wrapper = await createWrapper()
+    expect(wrapper.find('[data-testid="image-output-format-select"]').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('retains other providers\' output formats in their existing advanced section', async () => {
+    state.current.currentParameterDefinitions.value = [
+      { name: 'output_format', type: 'string', allowedValues: ['png', 'jpeg'] },
+    ]
+    const wrapper = await createWrapper()
+    state.current.selectedProviderId.value = 'seedream'
+    await flushPromises()
+    expect(wrapper.find('[data-testid="image-output-format-select"]').exists()).toBe(false)
+    expect(wrapper.getComponent({ name: 'ModelAdvancedSection' }).props('parameterDefinitions')).toEqual(state.current.currentParameterDefinitions.value)
+    wrapper.unmount()
+  })
+})
+
 describe('mobile image model editor draft lifecycle', () => {
-  it('keeps provider and model search menus above the IME without changing desktop selection props', async () => {
+  it('retains provider viewport handling and the shared model draft picker across layouts', async () => {
     vi.stubGlobal('visualViewport', Object.assign(new EventTarget(), { offsetTop: 0, height: 299, scale: 1 }))
     vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({ top: 225, bottom: 257 } as DOMRect)
     const wrapper = await createWrapper()
-    for (const id of ['image-model-provider-select', 'image-model-id-select']) {
+    for (const id of ['image-model-provider-select']) {
       const select = wrapper.getComponent(`[data-testid="${id}"]`)
       select.vm.$emit('update:show', true)
       await flushPromises()
@@ -85,8 +143,8 @@ describe('mobile image model editor draft lifecycle', () => {
     const desktopModel = wrapper.getComponent('[data-testid="image-model-id-select"]')
     desktopModel.vm.$emit('update:show', true)
     await flushPromises()
-    expect(desktopModel.props('menuProps')).toBeUndefined()
-    expect(desktopModel.props('placement')).toBe('bottom-start')
+    expect(desktopModel.props('clearable')).toBe(true)
+    expect(desktopModel.props('allowCustom')).toBe(true)
     expect(state.current.configForm.value.modelId).toBe('image-model-a')
     wrapper.unmount()
   })

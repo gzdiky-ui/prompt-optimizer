@@ -142,16 +142,7 @@ import {
   type FormInst,
   type FormRules
 } from 'naive-ui';
-import {
-  FolderPlus,
-  ArrowsMaximize,
-  ArrowsMinimize,
-  Edit,
-  Trash,
-  Plus,
-  Folder,
-  DotsVertical
-} from '@vicons/tabler';
+import { FolderPlus, Maximize2 as ArrowsMaximize, Minimize2 as ArrowsMinimize, SquarePen as Edit, Trash2 as Trash, Plus, Folder, EllipsisVertical as DotsVertical } from '@lucide/vue'
 import { useToast } from '../composables/ui/useToast';
 import { useI18n } from 'vue-i18n';
 import { getI18nErrorMessage } from '../utils/error';
@@ -180,7 +171,7 @@ const editingCategory = ref<FavoriteCategory | null>(null);
 const categoryForm = ref({
   name: '',
   description: '',
-  parentId: undefined as string | undefined,
+  parentId: undefined as string | null | undefined,
   color: '#409EFF'
 });
 const saving = ref(false);
@@ -446,7 +437,7 @@ const handleSaveCategory = async () => {
       await servicesValue.favoriteManager.updateCategory(editingCategory.value.id, {
         name: categoryForm.value.name,
         description: categoryForm.value.description,
-        parentId: categoryForm.value.parentId,
+        parentId: categoryForm.value.parentId ?? undefined,
         color: categoryForm.value.color
       });
       message.success(t('favorites.categoryManager.updateSuccess'));
@@ -455,7 +446,7 @@ const handleSaveCategory = async () => {
       await servicesValue.favoriteManager.addCategory({
         name: categoryForm.value.name,
         description: categoryForm.value.description,
-        parentId: categoryForm.value.parentId,
+        parentId: categoryForm.value.parentId ?? undefined,
         color: categoryForm.value.color,
         sortOrder: Date.now()
       });

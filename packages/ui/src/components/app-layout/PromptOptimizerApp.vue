@@ -88,6 +88,7 @@
 
             <!-- Modals and Drawers that are conditionally rendered -->
             <ModelManagerUI
+                ref="modelManagerDialogRef"
                 v-if="isReady"
                 v-model:show="modelManager.showConfig"
                 @models-updated="handleTextModelsUpdated"
@@ -223,6 +224,7 @@
 </template>
 
 <script setup lang="ts">
+import { useArenaSession } from '../../stores/session/useArenaSession';
 /**
  * PromptOptimizerApp - 主应用组件
  *
@@ -242,6 +244,10 @@ import {
     nextTick,
 } from "vue";
 import { RouterView } from "vue-router";
+import { setLucideProps } from '@lucide/vue';
+import { APP_ICON_DEFAULTS } from '../../config/icons';
+
+setLucideProps(APP_ICON_DEFAULTS);
 import { router as routerInstance } from '../../router';
 import {
     DEFAULT_WORKSPACE_PATH,
@@ -496,6 +502,7 @@ const imageSubModeApi = useImageSubMode(services);
 const getWorkspacePathFromGlobalSettings = () => {
   const globalSettings = useGlobalSettings()
   const { functionMode, basicSubMode, proSubMode, imageSubMode } = globalSettings.state
+  if (functionMode === 'arena') return '/arena'
   if (functionMode === 'image') return normalizeWorkspacePath(`/image/${imageSubMode}`)
   if (functionMode === 'pro') return normalizeWorkspacePath(`/pro/${proSubMode}`)
   return normalizeWorkspacePath(`/basic/${basicSubMode}`)
@@ -1142,6 +1149,7 @@ provide("optimizationContextTools", optimizationContextTools);
 
 // 🔧 Step E: 使用 route-computed 代替旧 state
 const getCurrentSession = () => {
+    if (routeFunctionMode.value === 'arena') return null;
     if (routeFunctionMode.value === 'basic') {
         return routeBasicSubMode.value === 'system' ? basicSystemSession : basicUserSession;
     } else if (routeFunctionMode.value === 'pro') {
@@ -2167,15 +2175,20 @@ const handleTemplateManagerClosed = () => {
 };
 
 // 提供 openModelManager 接口
-const openModelManager = (tab: "text" | "image" | "function" = "text") => {
+const modelManagerDialogRef = ref<InstanceType<typeof ModelManagerUI> | null>(null);
+const openModelManager = async (tab: "text" | "image" | "function" = "text", configId?: string) => {
     modelManager.showConfig = true;
-    setTimeout(() => {
-        if (typeof window !== "undefined") {
-            window.dispatchEvent(
-                new CustomEvent("model-manager:set-tab", { detail: tab }),
-            );
-        }
-    }, 0);
+    await nextTick();
+    if (typeof window !== "undefined") {
+        window.dispatchEvent(
+            new CustomEvent("model-manager:set-tab", { detail: tab }),
+        );
+    }
+    if (tab === "text" && configId) {
+        await modelManagerDialogRef.value?.openTextModel(configId);
+    } else if (tab === "image" && configId) {
+        await modelManagerDialogRef.value?.openImageModel(configId);
+    }
 };
 provide("openModelManager", openModelManager);
 
@@ -2309,7 +2322,7 @@ async function navigateToSubModeKey(
     BasicSubMode | ProSubMode | ImageSubMode
   ]
 
-  const path = `/${mode}/${subMode}`
+  const path = toKey === 'arena' ? '/arena' : `/${mode}/${subMode}`
   const fromPath = routerInstance.currentRoute.value.fullPath
 
   if (opts?.replace) {
@@ -2347,7 +2360,8 @@ const compactAutosave = useCompactSessionAutosave({
 });
 
 // Optional Web/PWA host API. No service worker or browser update state enters UI stores.
-const isWorkspaceBusy = () => !isReady.value || sessionManager.isSwitching ||
+const arenaSession = useArenaSession();
+const isWorkspaceBusy = () => !isReady.value || sessionManager.isSwitching || arenaSession.running ||
   hasSessionConflicts(services.value?.preferenceService) ||
   !!activeWorkspaceRef.value?.isUpdateBusy?.();
 const prepareSessionRestore = async (): Promise<(() => void) | null> => {

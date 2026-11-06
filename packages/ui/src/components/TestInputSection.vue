@@ -2,8 +2,8 @@
   <div>
     <NSpace vertical :size="8">
       <!-- 标题和控制区域 -->
-      <NFlex justify="space-between" align="center" :wrap="false">
-        <NText :depth="2" class="test-input-section__label">
+      <NFlex v-if="showHeader" :justify="showLabel ? 'space-between' : 'end'" align="center" :wrap="false">
+        <NText v-if="showLabel" :depth="2" class="test-input-section__label">
           {{ label }}
         </NText>
         <div
@@ -21,10 +21,8 @@
             round
           >
             <template #icon>
-              <NIcon>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                </svg>
+              <NIcon :size="16">
+                <UiMaximize2 />
               </NIcon>
             </template>
           </NButton>
@@ -43,12 +41,14 @@
         show-count
         :size="size"
         :data-testid="props.testId"
+        :input-props="{ 'aria-label': label }"
       />
 
       <!-- 帮助文本 -->
       <NText v-if="helpText" :depth="3" style="font-size: 12px;">
         {{ helpText }}
       </NText>
+      <slot name="footer" :open-fullscreen="openFullscreen" />
     </NSpace>
 
     <!-- 全屏弹窗 -->
@@ -67,6 +67,7 @@
 </template>
 
 <script setup lang="ts">
+import { Maximize2 as UiMaximize2 } from '@lucide/vue'
 import { computed } from 'vue'
 
 import { useI18n } from 'vue-i18n'
@@ -79,6 +80,8 @@ const { t } = useI18n()
 interface Props {
   modelValue: string
   label: string
+  showLabel?: boolean
+  showHeader?: boolean
   placeholder?: string
   helpText?: string
   disabled?: boolean
@@ -94,6 +97,8 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   placeholder: '',
+  showLabel: true,
+  showHeader: true,
   helpText: '',
   disabled: false,
   size: 'medium',

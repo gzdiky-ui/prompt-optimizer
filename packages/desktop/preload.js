@@ -89,6 +89,18 @@ async function invokeFavorite(channel, ...args) {
 }
 
 contextBridge.exposeInMainWorld('electronAPI', {
+  localServices: {
+    fetchModels: async (input) => {
+      const result = await ipcRenderer.invoke('local-services-fetch-models', input);
+      if (!result.success) throw createIpcError(result.error);
+      return result.data;
+    },
+    discover: async (ports) => {
+      const result = await ipcRenderer.invoke('local-services-discover', ports);
+      if (!result.success) throw createIpcError(result.error);
+      return result.data;
+    },
+  },
   cancelStream: streamId => ipcRenderer.invoke('stream-cancel', streamId),
   // IPC event listeners
   on: (channel, callback) => {
@@ -137,7 +149,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     },
 
     // Send streaming message
-    sendMessageStream: async (messages, provider, callbacks) => {
+    sendMessageStream: async (messages, provider, callbacks, selection) => {
       const streamId = generateStreamId();
       callbacks?.onStart?.(streamId);
       
@@ -173,7 +185,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
       // Send the streaming request
       try {
-        const result = await ipcRenderer.invoke('llm-sendMessageStream', messages, provider, streamId);
+        const result = await ipcRenderer.invoke('llm-sendMessageStream', messages, provider, streamId, selection);
         if (!result.success) {
           cleanup();
           throw createIpcError(result.error);

@@ -27,6 +27,7 @@ vi.mock('vue-i18n', async (importOriginal) => {
     ...actual,
     useI18n: () => ({
       t: (key: string) => key,
+      locale: ref('zh-CN'),
     }),
   }
 })
@@ -119,6 +120,9 @@ const commonStubs = {
   ContextUserTestPanel: true,
   OutputDisplay: true,
   SelectWithConfig: true,
+  // Batch execution is exercised here; model menu behavior has its own tests.
+  TextModelSelector: true,
+  ImageModelSelector: true,
   TestPanelVersionSelect: true,
   ToolCallDisplay: true,
   EvaluationPanel: true,

@@ -9,6 +9,19 @@ const messages = {
     "uploadRequired": "Image-to-Image mode requires uploading a reference image first"
   },
   "imageWorkspace": {
+    "usage": {
+      "tokens": "Token usage",
+      "promptTokens": "Prompt tokens",
+      "imageTokens": "Image tokens",
+      "totalTokens": "All tokens",
+      "input": "Input",
+      "output": "Output",
+      "image": "Image",
+      "aspect": "Aspect",
+      "tier": "Pricing Tier",
+      "thinkingTokens": "Thinking tokens",
+      "inference": "Inference"
+    },
     "input": {
       "originalPrompt": "Original Prompt",
       "originalPromptPlaceholder": "Enter the image generation prompt to optimize",
@@ -21,7 +34,7 @@ const messages = {
       "multiImageHint": "Drag cards to control the semantic order of Image 1 / Image 2 / Image 3",
       "multiImageMinHint": "Add one more image to start multi-image generation",
       "multiImageReadyHint": "Upload at least two images before starting multi-image generation",
-      "selectImage": "📁 Select",
+      "selectImage": "Select",
       "optimizeTemplate": "Optimization Template",
       "templatePlaceholder": "Please select template",
       "textModel": "Text Model",
@@ -220,6 +233,20 @@ const messages = {
       "advancedConfigDescription": "Optional, used to override default model parameters"
     },
     "params": {
+      "outputFormat": {
+        "label": "Output Format",
+        "description": "Generate a PNG image by default, or choose an animated GIF",
+        "png": "PNG image",
+        "gif": "Animated GIF"
+      },
+      "frameCount": {
+        "label": "GIF Frame Count",
+        "description": "Optional, 2–16 frames; uses the model default when unset, typically 9 frames"
+      },
+      "frameDuration": {
+        "label": "GIF Frame Delay (ms)",
+        "description": "Optional; smaller values play faster. Uses the model default when unset, typically 200 ms per frame"
+      },
       "size": {
         "label": "Image Size",
         "description": "Generated image resolution/size, e.g., 1024x1024"

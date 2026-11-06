@@ -9,6 +9,19 @@ const messages = {
     "uploadRequired": "图生图模式需要先上传参考图片"
   },
   "imageWorkspace": {
+    "usage": {
+      "tokens": "Token 用量",
+      "promptTokens": "输入",
+      "imageTokens": "输出",
+      "totalTokens": "合计",
+      "input": "输入",
+      "output": "输出",
+      "image": "图片",
+      "aspect": "比例",
+      "tier": "尺寸档位",
+      "thinkingTokens": "思考 Token",
+      "inference": "耗时"
+    },
     "input": {
       "originalPrompt": "原始提示词",
       "originalPromptPlaceholder": "请输入需要优化的图像生成提示词",
@@ -21,7 +34,7 @@ const messages = {
       "multiImageHint": "拖动卡片可调整图1 / 图2 / 图3 的顺序语义",
       "multiImageMinHint": "再添加一张图片后即可开始多图生图",
       "multiImageReadyHint": "请至少上传两张图片，再开始多图生图",
-      "selectImage": "📁 选择",
+      "selectImage": "选择",
       "optimizeTemplate": "优化模板",
       "templatePlaceholder": "请选择模板",
       "textModel": "文本模型",
@@ -220,6 +233,20 @@ const messages = {
       "advancedConfigDescription": "可选，用于覆盖默认模型参数"
     },
     "params": {
+      "outputFormat": {
+        "label": "输出格式",
+        "description": "默认生成 PNG 图片，也可以选择 GIF 动图",
+        "png": "PNG 图片",
+        "gif": "GIF 动图"
+      },
+      "frameCount": {
+        "label": "GIF 帧数",
+        "description": "可选，2–16 帧；未设置时由模型决定，通常为 9 帧"
+      },
+      "frameDuration": {
+        "label": "GIF 帧间隔（毫秒）",
+        "description": "可选，数值越小播放越快；未设置时通常为 200 毫秒/帧"
+      },
       "size": {
         "label": "图像尺寸",
         "description": "生成图像的分辨率/尺寸，如 1024x1024"
